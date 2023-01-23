@@ -17,8 +17,10 @@ class PCF8574X3
         bool _showLogDigitalWriteExpander = false;
         bool _showLogDigitalReadExpander = false;
 
-        void init(int pin_digital_input, bool showLogPinModeExpander, bool showLogDigitalWriteExpander, bool showLogDigitalReadExpander);
-        void init(int pin_digital_input);
+        void init(bool showLogPinModeExpander, bool showLogDigitalWriteExpander, bool showLogDigitalReadExpander);
+        void init(int pin_digital_INT_signal, bool showLogPinModeExpander, bool showLogDigitalWriteExpander, bool showLogDigitalReadExpander);
+        void init();
+        void init(int pin_digital_INT_signal);
         void pinModeExpander(int pin, MODE mode);
         void digitalWriteExpander(int pin, STATE state);
         void pullDownExpander(int pin);
@@ -34,7 +36,6 @@ class PCF8574X3
     private:
         int getPin(int pin);
         void setDevice(int pin);
-        static void onInterrupt();
         
         PCF8574* expander = nullptr; 
 };

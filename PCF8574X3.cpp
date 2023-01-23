@@ -1,39 +1,44 @@
 #include "PCF8574X3.h"
 
-static PCF8574* ptr_expander_x3_1 = nullptr;
-static PCF8574* ptr_expander_x3_2 = nullptr;
-static PCF8574* ptr_expander_x3_3 = nullptr;
-
 PCF8574X3::PCF8574X3()
 {}
 
 PCF8574X3::~PCF8574X3()
 {}
 
-void PCF8574X3::init(int pin_digital_input, bool showLogPinModeExpander, bool showLogDigitalWriteExpander, bool showLogDigitalReadExpander)
+void PCF8574X3::init(bool showLogPinModeExpander, bool showLogDigitalWriteExpander, bool showLogDigitalReadExpander)
 {
 	_showLogPinModeExpander = showLogPinModeExpander;
 	_showLogDigitalWriteExpander = showLogDigitalWriteExpander;
 	_showLogDigitalReadExpander = showLogDigitalReadExpander;
-	init(pin_digital_input);
 }
 
-void PCF8574X3::init(int pin_digital_input)
+void PCF8574X3::init(int pin_digital_INT_signal, bool showLogPinModeExpander, bool showLogDigitalWriteExpander, bool showLogDigitalReadExpander)
+{
+	_showLogPinModeExpander = showLogPinModeExpander;
+	_showLogDigitalWriteExpander = showLogDigitalWriteExpander;
+	_showLogDigitalReadExpander = showLogDigitalReadExpander;
+	init(pin_digital_INT_signal);
+}
+
+void PCF8574X3::init()
+{
+	expander_x3_1.begin(0x20);
+	expander_x3_2.begin(0x21);
+	expander_x3_3.begin(0x22);
+}
+
+void PCF8574X3::init(int pin_digital_INT_signal)
 {
 	expander_x3_1.begin(0x20);
 	expander_x3_2.begin(0x21);
 	expander_x3_3.begin(0x22);
 
-	ptr_expander_x3_1 = &expander_x3_1;
-	ptr_expander_x3_2 = &expander_x3_2;
-	ptr_expander_x3_3 = &expander_x3_3;
-
-	//expander_x3_1.enableInterrupt(pin_digital_input, onInterrupt);
-
-	pinMode(pin_digital_input, INPUT);
-	digitalWrite(pin_digital_input, HIGH);
+	pinMode(pin_digital_INT_signal, INPUT);
+	digitalWrite(pin_digital_INT_signal, HIGH);
 }
 
+//Configures the specified pin to act as an input or output.
 void PCF8574X3::pinModeExpander(int pin, MODE mode)
 {
 	if (pin < 0 || pin > 23)
@@ -61,6 +66,7 @@ void PCF8574X3::pinModeExpander(int pin, MODE mode)
 
 }
 
+//They set the digital input low by default "LOW"
 void PCF8574X3::pullDownExpander(int pin)
 {
 	if (pin < 0 || pin > 23)
@@ -78,6 +84,7 @@ void PCF8574X3::pullDownExpander(int pin)
 	expander->pullDown(getPin(pin));
 }
 
+//They set the digital input to a high state by default "HIGH"
 void PCF8574X3::pullUpExpander(int pin)
 {
 	if (pin < 0 || pin > 23)
@@ -95,6 +102,7 @@ void PCF8574X3::pullUpExpander(int pin)
 	expander->pullUp(getPin(pin));
 }
 
+//Sets the state pin to low or high
 void PCF8574X3::digitalWriteExpander(int pin, STATE state)
 {
 	if (pin < 0 || pin > 23)
@@ -122,6 +130,7 @@ void PCF8574X3::digitalWriteExpander(int pin, STATE state)
 
 }
 
+//Reads the value from a specified digital pin, either HIGH or LOW.
 byte PCF8574X3::digitalReadExpander(int pin)
 {
 	if (pin < 0 || pin > 23)
@@ -148,6 +157,7 @@ byte PCF8574X3::digitalReadExpander(int pin)
 	return value;
 }
 
+//Method sets the currently used expander for global pin
 void PCF8574X3::setDevice(int pin)
 {
 	switch (pin)
@@ -193,6 +203,7 @@ void PCF8574X3::setDevice(int pin)
 	}
 }
 
+//Method returns the local pin of the device based on the global pin
 int PCF8574X3::getPin(int pin)
 {
 
@@ -251,19 +262,3 @@ int PCF8574X3::getPin(int pin)
 	}
 }
 
-static void PCF8574X3::onInterrupt()
-{
-	if (ptr_expander_x3_1 == nullptr
-		|| ptr_expander_x3_2 == nullptr
-		|| ptr_expander_x3_3 == nullptr)
-	{
-		Serial.println("ERROR *ptr_expander in onInterrupt()");
-		return;
-	}
-	else
-	{
-		ptr_expander_x3_1->checkForInterrupt();
-		ptr_expander_x3_2->checkForInterrupt();
-		ptr_expander_x3_3->checkForInterrupt();
-	}
-}
